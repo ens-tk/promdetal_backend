@@ -32,13 +32,20 @@ public class FileController {
     @Operation(summary = "Download file by ID")
     @GetMapping("/{id}")
     public ResponseEntity<Resource> download(@PathVariable UUID id) throws IOException {
-        Resource file = (Resource) fileService.getFile(id);
         FileInfo info = fileService.getInfo(id);
+        Resource file = fileService.getFile(id);
+
+        String extension = info.getExtension().toLowerCase();
+        String contentType = switch (extension) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            default -> "application/octet-stream";
+        };
 
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + info.getName() + "\"")
+                .contentType(MediaType.parseMediaType(contentType))
                 .body(file);
     }
+
 }
