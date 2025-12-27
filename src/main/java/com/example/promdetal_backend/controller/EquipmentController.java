@@ -1,5 +1,6 @@
 package com.example.promdetal_backend.controller;
 
+import com.example.promdetal_backend.dto.EquipmentDto;
 import com.example.promdetal_backend.entity.Equipment;
 import com.example.promdetal_backend.entity.FileInfo;
 import com.example.promdetal_backend.service.EquipmentService;
@@ -12,46 +13,52 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/Equipment")
+@RequestMapping("/api/equipment")
 @RequiredArgsConstructor
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
 
-    @Operation(summary = "Get all equipment")
+    @Operation(summary = "Get all equipment (optional by group)")
     @GetMapping
-    public List<Equipment> getAll() {
-        return equipmentService.getAll();
+    public List<EquipmentDto> getAll(@RequestParam(required = false) Long groupId) {
+        return equipmentService.getAll(groupId);
     }
 
     @Operation(summary = "Get equipment by slug")
     @GetMapping("/{slug}")
-    public Equipment getBySlug(@PathVariable String slug) {
+    public EquipmentDto getBySlug(@PathVariable String slug) {
         return equipmentService.getBySlug(slug);
     }
 
-    @Operation(summary = "Create new equipment")
+    @Operation(summary = "Create equipment")
     @PostMapping
-    public Equipment create(@RequestBody Equipment equipment) {
-        return equipmentService.create(equipment);
+    public EquipmentDto create(@RequestBody EquipmentDto dto) {
+        return equipmentService.create(dto);
     }
 
     @Operation(summary = "Update equipment")
     @PutMapping("/{id}")
-    public Equipment update(@PathVariable Long id, @RequestBody Equipment equipment) {
-        return equipmentService.update(id, equipment);
+    public EquipmentDto update(@PathVariable Long id, @RequestBody EquipmentDto dto) {
+        return equipmentService.update(id, dto);
     }
 
-    @Operation(summary = "Add uploaded image to equipment")
+    @Operation(summary = "Delete equipment")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        equipmentService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Add image to equipment")
     @PostMapping("/{id}/images/{fileId}")
-    public FileInfo addImage(@PathVariable Long id, @PathVariable UUID fileId) {
+    public EquipmentDto addImage(@PathVariable Long id, @PathVariable UUID fileId) {
         return equipmentService.addImage(id, fileId);
     }
 
-    @Operation(summary = "Get equipment visible on main page")
+    @Operation(summary = "Get equipment for main page")
     @GetMapping("/main")
-    public List<Equipment> getMainEquipment() {
+    public List<EquipmentDto> getMainEquipment() {
         return equipmentService.getMainEquipment();
     }
-
 }

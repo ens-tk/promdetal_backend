@@ -3,13 +3,10 @@ package com.example.promdetal_backend.dto;
 import com.example.promdetal_backend.entity.FileInfo;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 
 @Data
-public class NewsListItemDto {
-    private Long id;
+public class EquipmentGroupCreateDto {
     private String title;
-    private String content;
-    private LocalDateTime createdAt;
+    private String description;
     private FileInfo coverImage;
 }

@@ -20,6 +20,10 @@ public class EquipmentCaseService {
         return caseRepository.findByEquipmentId(equipmentId);
     }
 
+    public List<EquipmentCase> getAll() {
+        return caseRepository.findAll();
+    }
+
     public EquipmentCase get(Long id) {
         return caseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Case not found"));
@@ -35,7 +39,6 @@ public class EquipmentCaseService {
 
     public EquipmentCase update(Long id, EquipmentCase updated) {
         EquipmentCase existing = get(id);
-
         existing.setCustomer(updated.getCustomer());
         existing.setDeliveryDate(updated.getDeliveryDate());
         existing.setEquipmentType(updated.getEquipmentType());

@@ -23,11 +23,12 @@ public class NewsService {
             dto.setCreatedAt(n.getCreatedAt());
             dto.setCoverImage(n.getCoverImage());
 
-            String preview = n.getContent().length() > 100
-                    ? n.getContent().substring(0, 100) + "..."
-                    : n.getContent();
+            String content = n.getContent() != null ? n.getContent() : "";
+            String preview = content.length() > 100 ? content.substring(0, 100) + "..." : content;
+            dto.setContent(preview);
 
-            dto.setPreview(preview);
+
+            dto.setContent(preview);
             return dto;
         }).toList();
     }
@@ -53,10 +54,10 @@ public class NewsService {
                     item.setCreatedAt(n.getCreatedAt());
                     item.setCoverImage(n.getCoverImage());
 
-                    String preview = n.getContent().length() > 100
-                            ? n.getContent().substring(0, 100) + "..."
-                            : n.getContent();
-                    item.setPreview(preview);
+                    String relatedContent = n.getContent() != null ? n.getContent() : "";
+                    String preview = relatedContent.length() > 100 ? relatedContent.substring(0, 100) + "..." : relatedContent;
+                    item.setContent(preview);
+
                     return item;
                 }).toList()
         );

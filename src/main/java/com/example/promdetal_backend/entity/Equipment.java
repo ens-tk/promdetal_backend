@@ -31,4 +31,8 @@ public class Equipment {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "equipment_id")
     private List<FileInfo> images = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private EquipmentGroup group;
 }
