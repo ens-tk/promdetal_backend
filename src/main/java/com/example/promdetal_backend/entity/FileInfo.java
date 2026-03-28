@@ -24,7 +24,4 @@ public class FileInfo {
 
     private String path;
 
-
-    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Hotspot> hotspots = new ArrayList<>();
 }

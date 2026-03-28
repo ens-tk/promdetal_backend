@@ -3,6 +3,7 @@ package com.example.promdetal_backend.controller;
 import com.example.promdetal_backend.dto.EquipmentDto;
 import com.example.promdetal_backend.entity.Equipment;
 import com.example.promdetal_backend.entity.FileInfo;
+import com.example.promdetal_backend.service.EquipmentSearchService;
 import com.example.promdetal_backend.service.EquipmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
+    private final EquipmentSearchService searchService;
 
     @Operation(summary = "Get all equipment (optional by group)")
     @GetMapping
@@ -25,10 +27,10 @@ public class EquipmentController {
         return equipmentService.getAll(groupId);
     }
 
-    @Operation(summary = "Get equipment by slug")
-    @GetMapping("/{slug}")
-    public EquipmentDto getBySlug(@PathVariable String slug) {
-        return equipmentService.getBySlug(slug);
+    @Operation(summary = "Get equipment by id")
+    @GetMapping("/{id}")
+    public EquipmentDto getById(@PathVariable Long id) {
+        return equipmentService.getById(id);
     }
 
     @Operation(summary = "Create equipment")
@@ -50,15 +52,14 @@ public class EquipmentController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Add image to equipment")
-    @PostMapping("/{id}/images/{fileId}")
-    public EquipmentDto addImage(@PathVariable Long id, @PathVariable UUID fileId) {
-        return equipmentService.addImage(id, fileId);
-    }
 
     @Operation(summary = "Get equipment for main page")
     @GetMapping("/main")
     public List<EquipmentDto> getMainEquipment() {
         return equipmentService.getMainEquipment();
+    }
+    @GetMapping("/search")
+    public List<EquipmentDto> search(@RequestParam String q) {
+        return searchService.search(q);
     }
 }

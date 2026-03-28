@@ -4,22 +4,31 @@ import com.example.promdetal_backend.entity.FileInfo;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 public class EquipmentCaseResponseDto {
 
     private Long id;
 
-    private Long equipmentId;
-    private String equipmentTitle;
+    private Long groupId;
+    private String groupTitle;
 
+    private String title;
+
+    private Integer year;
+
+    private String city;
     private String customer;
-    private LocalDate deliveryDate;
     private String equipmentType;
 
-    private String purpose1;
-    private String purpose2;
-    private String purpose3;
+    private String services;
 
-    private FileInfo image;
+    private String problem;
+    private String solution;
+    private String result;
+
+    private UUID imageId;
 }
+
+

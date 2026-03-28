@@ -5,6 +5,7 @@ import com.example.promdetal_backend.dto.EquipmentCaseResponseDto;
 import com.example.promdetal_backend.entity.EquipmentCase;
 import com.example.promdetal_backend.mapper.EquipmentCaseMapper;
 import com.example.promdetal_backend.service.EquipmentCaseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,57 +13,50 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class EquipmentCaseController {
 
     private final EquipmentCaseService caseService;
 
-    @GetMapping("/api/cases")
+    // Все кейсы
+    @GetMapping("/cases")
     public List<EquipmentCaseResponseDto> all() {
-        return caseService.getAll().stream()
-                .map(EquipmentCaseMapper::toDto)
-                .toList();
+        return caseService.getAllCases(); // ✅ возвращает DTO напрямую
     }
 
-    @GetMapping("/api/equipment/{equipmentId}/cases")
-    public List<EquipmentCaseResponseDto> list(@PathVariable Long equipmentId) {
-        return caseService.getByEquipment(equipmentId).stream()
-                .map(EquipmentCaseMapper::toDto)
-                .toList();
+    // Кейсы по группе
+    @GetMapping("/groups/{groupId}/cases")
+    public List<EquipmentCaseResponseDto> listByGroup(@PathVariable Long groupId) {
+        return caseService.getByGroup(groupId); // ✅ возвращает DTO напрямую
     }
 
-    @GetMapping("/api/cases/{id}")
+    // Один кейс
+    @GetMapping("/cases/{id}")
     public EquipmentCaseResponseDto get(@PathVariable Long id) {
-        return EquipmentCaseMapper.toDto(caseService.get(id));
+        return caseService.getCase(id);
     }
 
-    @PostMapping("/api/equipment/{equipmentId}/cases")
+    // Создание кейса
+    @PostMapping("/groups/{groupId}/cases")
     public EquipmentCaseResponseDto create(
-            @PathVariable Long equipmentId,
-            @RequestBody EquipmentCaseRequestDto dto
+            @PathVariable Long groupId,
+            @Valid @RequestBody EquipmentCaseRequestDto dto
     ) {
-        EquipmentCase entity = new EquipmentCase();
-        EquipmentCaseMapper.updateEntity(entity, dto);
-
-        return EquipmentCaseMapper.toDto(
-                caseService.create(equipmentId, entity)
-        );
+        return caseService.createCase(groupId, dto); // ✅ сервис сам мапит и сохраняет
     }
 
-    @PutMapping("/api/cases/{id}")
+    // Обновление кейса
+    @PutMapping("/cases/{id}")
     public EquipmentCaseResponseDto update(
             @PathVariable Long id,
-            @RequestBody EquipmentCaseRequestDto dto
+            @Valid @RequestBody EquipmentCaseRequestDto dto
     ) {
-        EquipmentCase entity = caseService.get(id);
-        EquipmentCaseMapper.updateEntity(entity, dto);
-
-        return EquipmentCaseMapper.toDto(
-                caseService.update(id, entity)
-        );
+        return caseService.updateCase(id, dto);
     }
 
-    @DeleteMapping("/api/cases/{id}")
+    // Удаление
+    @DeleteMapping("/cases/{id}")
     public void delete(@PathVariable Long id) {
-        caseService.delete(id);
+        caseService.deleteCase(id);
     }
 }

@@ -14,27 +14,31 @@ public class EquipmentCase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title;
+
+    private Integer year;
+
+    private String city;
     private String customer;
-
-    private LocalDate deliveryDate;
-
     private String equipmentType;
 
-    @Column(length = 5000)
-    private String purpose1;
+    private String services;
 
     @Column(length = 5000)
-    private String purpose2;
+    private String problem;
 
     @Column(length = 5000)
-    private String purpose3;
+    private String solution;
+
+    @Column(length = 5000)
+    private String result;
 
     @OneToOne
     @JoinColumn(name = "image_id")
     private FileInfo image;
 
     @ManyToOne
-    @JoinColumn(name = "equipment_id")
-    private Equipment equipment;
+    @JoinColumn(name = "group_id")
+    private EquipmentGroup group;
 }
 

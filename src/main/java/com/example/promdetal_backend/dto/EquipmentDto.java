@@ -7,12 +7,25 @@ import java.util.UUID;
 
 @Data
 public class EquipmentDto {
+
     private Long id;
     private String title;
     private String shortDescription;
     private String fullDescription;
     private String slug;
+
     private boolean showOnMain;
+
     private Long groupId;
-    private List<UUID> imageIds;
+
+    private UUID mainImageId;
+    private UUID hotspotImageId;
+
+    private String videoUrl;
+
+    private List<AdvantageDto> advantages;
+    private List<HotspotDto> hotspots;
+
+    /** строка с запятыми с фронта */
+    private String searchKeywords;
 }

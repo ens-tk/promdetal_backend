@@ -9,5 +9,8 @@ import java.util.UUID;
 
 @Repository
 public interface HotspotRepository extends JpaRepository<Hotspot, Long> {
-    List<Hotspot> findByFileId(UUID fileId);
+
+    List<Hotspot> findByEquipmentId(Long equipmentId);
+
+    void deleteByEquipmentId(Long equipmentId);
 }

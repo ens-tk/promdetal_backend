@@ -3,6 +3,7 @@ package com.example.promdetal_backend;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,8 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
@@ -29,44 +28,77 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // ✅ CORS ВАЖНО: первым
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // ❌ CSRF не нужен для JWT
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(s ->
-                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+
+                // ❌ Сессии не используем
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
+
+                        // ✅ PRE-FLIGHT (ОБЯЗАТЕЛЬНО)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/groups/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/equipment/**").permitAll()
+                        // ---------- PUBLIC ----------
+
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/Files/**").permitAll()
+                        .requestMatchers("/api/groups").permitAll()
+                        .requestMatchers("/api/contact").permitAll()
+                        .requestMatchers("/api/articles").permitAll()
+                        .requestMatchers("/api/equipment").permitAll()
                         .requestMatchers(
-                                "/api/auth/**",
                                 "/swagger-ui/**",
-                                "/api/partners/**",
-                                "/api/auth/**",
+                                "/v3/api-docs/**",
                                 "/api/news/**",
                                 "/api/cases/**",
-                                "/api/equipment/**",
-                                "/api/groups/**",
-                                "/v3/api-docs/**",
-                                "/api/Files/**"
+                                "/api/partners/**",
+                                "/api/equipment/**"
                         ).permitAll()
+
+                        // ---------- PROTECTED ----------
+                        .requestMatchers(HttpMethod.POST, "/api/Files").authenticated()
+                        .requestMatchers("/api/groups/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/equipment/{equipmentId}/cases").authenticated()
+
+                        .requestMatchers("/api/articles/**").authenticated()
+
+                        // ---------- EVERYTHING ELSE ----------
                         .anyRequest().authenticated()
                 )
+
+                // ✅ JWT фильтр ПОСЛЕ CORS
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // ✅ ГЛОБАЛЬНЫЙ CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:8081"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:8081",
+                "http://172.29.0.1:8081/",
+                "http://62.76.142.36"
+        ));
+
+        config.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+        ));
+
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
         return source;
     }
 
@@ -75,4 +107,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-

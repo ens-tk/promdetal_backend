@@ -6,7 +6,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Entity
 @Table(name = "equipment")
 @Data
@@ -24,13 +23,35 @@ public class Equipment {
     @Column(length = 10000)
     private String fullDescription;
 
+    @Column(unique = true)
     private String slug;
 
     private boolean showOnMain;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "equipment_id")
-    private List<FileInfo> images = new ArrayList<>();
+    /** Rutube URL */
+    private String videoUrl;
+
+    /** Основное изображение */
+    @ManyToOne
+    @JoinColumn(name = "main_image_id")
+    private FileInfo mainImage;
+
+    /** Изображение для hotspot */
+    @ManyToOne
+    @JoinColumn(name = "hotspot_image_id")
+    private FileInfo hotspotImage;
+
+    /** Преимущества */
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EquipmentAdvantage> advantages = new ArrayList<>();
+
+    /** Hotspots */
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Hotspot> hotspots = new ArrayList<>();
+
+    /** Ключевые слова */
+    @ElementCollection
+    private List<String> searchKeywords = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "group_id")

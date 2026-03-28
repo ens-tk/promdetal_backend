@@ -1,17 +1,18 @@
 package com.example.promdetal_backend.service;
 
 import com.example.promdetal_backend.dto.EquipmentDto;
-import com.example.promdetal_backend.entity.Equipment;
-import com.example.promdetal_backend.entity.FileInfo;
+import com.example.promdetal_backend.entity.*;
 import com.example.promdetal_backend.mapper.EquipmentMapper;
 import com.example.promdetal_backend.repository.EquipmentRepository;
 import com.example.promdetal_backend.repository.FileInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import com.example.promdetal_backend.entity.EquipmentGroup;
+
 import com.example.promdetal_backend.repository.EquipmentGroupRepository;
 
 @Service
@@ -39,8 +40,8 @@ public class EquipmentService {
                 .toList();
     }
 
-    public EquipmentDto getBySlug(String slug) {
-        return equipmentRepository.findBySlug(slug)
+    public EquipmentDto getById(Long id) {
+        return equipmentRepository.findById(id)
                 .map(EquipmentMapper::toDto)
                 .orElseThrow(() -> new RuntimeException("Equipment not found"));
     }
@@ -75,32 +76,76 @@ public class EquipmentService {
     }
 
 
-    public EquipmentDto addImage(Long equipmentId, UUID fileId) {
-        Equipment equipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new RuntimeException("Equipment not found"));
-
-        FileInfo file = fileInfoRepository.findById(fileId)
-                .orElseThrow(() -> new RuntimeException("File not found"));
-
-        equipment.getImages().add(file);
-
-        return EquipmentMapper.toDto(equipmentRepository.save(equipment));
-    }
-
 
     private void applyDtoToEntity(EquipmentDto dto, Equipment equipment) {
+
         equipment.setTitle(dto.getTitle());
         equipment.setShortDescription(dto.getShortDescription());
         equipment.setFullDescription(dto.getFullDescription());
         equipment.setSlug(dto.getSlug());
         equipment.setShowOnMain(dto.isShowOnMain());
+        equipment.setVideoUrl(dto.getVideoUrl());
 
         if (dto.getGroupId() != null) {
-            EquipmentGroup group = groupRepository.findById(dto.getGroupId())
-                    .orElseThrow(() -> new RuntimeException("Group not found"));
-            equipment.setGroup(group);
+            equipment.setGroup(
+                    groupRepository.findById(dto.getGroupId())
+                            .orElseThrow(() -> new RuntimeException("Group not found"))
+            );
         }
+
+        if (dto.getMainImageId() != null) {
+            equipment.setMainImage(
+                    fileInfoRepository.findById(dto.getMainImageId()).orElseThrow()
+            );
+        }
+
+        if (dto.getHotspotImageId() != null) {
+            equipment.setHotspotImage(
+                    fileInfoRepository.findById(dto.getHotspotImageId()).orElseThrow()
+            );
+        }
+
+        // keywords
+        // Keywords
+        equipment.setSearchKeywords(
+                dto.getSearchKeywords() != null
+                        ? new ArrayList<>(Arrays.stream(dto.getSearchKeywords().split(","))
+                        .map(String::trim)
+                        .toList())
+                        : new ArrayList<>()
+        );
+
+// Advantages
+        // Преимущества
+        equipment.getAdvantages().clear(); // очищаем старые элементы
+        if (dto.getAdvantages() != null) {
+            dto.getAdvantages().forEach(advDto -> {
+                EquipmentAdvantage adv = new EquipmentAdvantage();
+                adv.setIconId(advDto.getIconId());
+                adv.setText(advDto.getText());
+                adv.setEquipment(equipment);
+                equipment.getAdvantages().add(adv);
+            });
+        }
+
+// Точки
+        equipment.getHotspots().clear();
+        if (dto.getHotspots() != null) {
+            dto.getHotspots().forEach(h -> {
+                Hotspot hotspot = new Hotspot();
+                hotspot.setX(h.getX());
+                hotspot.setY(h.getY());
+                hotspot.setText(h.getText());
+                hotspot.setEquipment(equipment);
+                equipment.getHotspots().add(hotspot);
+            });
+        }
+
+
+
+
     }
+
 }
 
 

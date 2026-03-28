@@ -1,5 +1,6 @@
 package com.example.promdetal_backend.controller;
 
+import com.example.promdetal_backend.dto.HotspotDto;
 import com.example.promdetal_backend.entity.Hotspot;
 import com.example.promdetal_backend.service.HotspotService;
 import lombok.RequiredArgsConstructor;
@@ -9,40 +10,37 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/Hotspots")
+@RequestMapping("/api/equipment/{equipmentId}/hotspots")
 @RequiredArgsConstructor
 public class HotspotController {
 
     private final HotspotService hotspotService;
 
-    @PostMapping
-    public Hotspot addHotspot(
-            @RequestParam UUID fileId,
-            @RequestParam double x,
-            @RequestParam double y,
-            @RequestParam String text
-    ) {
-        return hotspotService.addHotspot(fileId, x, y, text);
+    @GetMapping
+    public List<Hotspot> get(@PathVariable Long equipmentId) {
+        return hotspotService.getByEquipment(equipmentId);
     }
 
-    @GetMapping("/file/{fileId}")
-    public List<Hotspot> getHotspots(@PathVariable UUID fileId) {
-        return hotspotService.getHotspotsByFile(fileId);
+    @PostMapping
+    public Hotspot add(
+            @PathVariable Long equipmentId,
+            @RequestBody HotspotDto dto
+    ) {
+        return hotspotService.addHotspot(
+                equipmentId, dto.getX(), dto.getY(), dto.getText()
+        );
     }
 
     @PutMapping("/{id}")
-    public Hotspot updateHotspot(
+    public Hotspot update(
             @PathVariable Long id,
-            @RequestParam double x,
-            @RequestParam double y,
-            @RequestParam String text
+            @RequestBody HotspotDto dto
     ) {
-        return hotspotService.updateHotspot(id, x, y, text);
+        return hotspotService.update(id, dto.getX(), dto.getY(), dto.getText());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteHotspot(@PathVariable Long id) {
-        hotspotService.deleteHotspot(id);
+    public void delete(@PathVariable Long id) {
+        hotspotService.delete(id);
     }
-
 }

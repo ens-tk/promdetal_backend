@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface EquipmentCaseRepository extends JpaRepository<EquipmentCase, Long> {
 
-    List<EquipmentCase> findByEquipmentId(Long equipmentId);
+    List<EquipmentCase> findByGroupId(Long groupId);
 }
-

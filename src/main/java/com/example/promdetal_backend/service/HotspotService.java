@@ -1,7 +1,9 @@
 package com.example.promdetal_backend.service;
 
+import com.example.promdetal_backend.entity.Equipment;
 import com.example.promdetal_backend.entity.FileInfo;
 import com.example.promdetal_backend.entity.Hotspot;
+import com.example.promdetal_backend.repository.EquipmentRepository;
 import com.example.promdetal_backend.repository.FileInfoRepository;
 import com.example.promdetal_backend.repository.HotspotRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,42 +17,56 @@ import java.util.UUID;
 public class HotspotService {
 
     private final HotspotRepository hotspotRepository;
-    private final FileInfoRepository fileInfoRepository;
+    private final EquipmentRepository equipmentRepository;
 
-    public Hotspot addHotspot(UUID fileId, double x, double y, String text) {
-        FileInfo file = fileInfoRepository.findById(fileId)
-                .orElseThrow(() -> new RuntimeException("File not found"));
+    /** Добавить один hotspot */
+    public Hotspot addHotspot(Long equipmentId, double x, double y, String text) {
+
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new RuntimeException("Equipment not found"));
 
         Hotspot hotspot = new Hotspot();
-        hotspot.setFile(file);
+        hotspot.setEquipment(equipment);
         hotspot.setX(x);
         hotspot.setY(y);
         hotspot.setText(text);
 
-        hotspotRepository.save(hotspot);
-
-        file.getHotspots().add(hotspot);
-        fileInfoRepository.save(file);
-
-        return hotspot;
-    }
-
-    public List<Hotspot> getHotspotsByFile(UUID fileId) {
-        FileInfo file = fileInfoRepository.findById(fileId)
-                .orElseThrow(() -> new RuntimeException("File not found"));
-        return file.getHotspots();
-    }
-
-    public Hotspot updateHotspot(Long hotspotId, double x, double y, String text) {
-        Hotspot hotspot = hotspotRepository.findById(hotspotId)
-                .orElseThrow(() -> new RuntimeException("Hotspot not found"));
-        hotspot.setX(x);
-        hotspot.setY(y);
-        hotspot.setText(text);
         return hotspotRepository.save(hotspot);
     }
 
-    public void deleteHotspot(Long hotspotId) {
+    /** Получить все hotspots оборудования */
+    public List<Hotspot> getByEquipment(Long equipmentId) {
+        return hotspotRepository.findByEquipmentId(equipmentId);
+    }
+
+    /** Обновить hotspot */
+    public Hotspot update(Long hotspotId, double x, double y, String text) {
+        Hotspot hotspot = hotspotRepository.findById(hotspotId)
+                .orElseThrow(() -> new RuntimeException("Hotspot not found"));
+
+        hotspot.setX(x);
+        hotspot.setY(y);
+        hotspot.setText(text);
+
+        return hotspotRepository.save(hotspot);
+    }
+
+    /** Удалить hotspot */
+    public void delete(Long hotspotId) {
         hotspotRepository.deleteById(hotspotId);
+    }
+
+    /** Полная перезапись hotspots (🔥 идеально для админки) */
+    public void replaceHotspots(Long equipmentId, List<Hotspot> hotspots) {
+
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new RuntimeException("Equipment not found"));
+
+        hotspotRepository.deleteByEquipmentId(equipmentId);
+
+        for (Hotspot hotspot : hotspots) {
+            hotspot.setEquipment(equipment);
+            hotspotRepository.save(hotspot);
+        }
     }
 }

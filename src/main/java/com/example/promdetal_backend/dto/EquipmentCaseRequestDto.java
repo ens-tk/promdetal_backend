@@ -1,20 +1,29 @@
 package com.example.promdetal_backend.dto;
 
-import com.example.promdetal_backend.entity.FileInfo;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.UUID;
+
+import jakarta.validation.constraints.PastOrPresent;
 
 @Data
 public class EquipmentCaseRequestDto {
+    private Long groupId;
+    private String title;
 
+    private Integer year;
+
+    private String city;
     private String customer;
-    private LocalDate deliveryDate;
     private String equipmentType;
+    private String services;
+    private String problem;
+    private String solution;
+    private String result;
 
-    private String purpose1;
-    private String purpose2;
-    private String purpose3;
-
-    private FileInfo image;
+    private UUID imageId;
 }
+
+
+

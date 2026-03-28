@@ -3,17 +3,17 @@ package com.example.promdetal_backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Entity
 @Data
-public class Hotspot {
+public class EquipmentAdvantage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hotspot_seq")
-    @SequenceGenerator(name = "hotspot_seq", sequenceName = "hotspot_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double x;
-    private double y;
+    private String iconId;
     private String text;
 
     @ManyToOne

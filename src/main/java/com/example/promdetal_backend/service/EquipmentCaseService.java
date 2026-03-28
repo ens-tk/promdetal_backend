@@ -1,8 +1,13 @@
 package com.example.promdetal_backend.service;
 
+import com.example.promdetal_backend.dto.EquipmentCaseRequestDto;
+import com.example.promdetal_backend.dto.EquipmentCaseResponseDto;
 import com.example.promdetal_backend.entity.Equipment;
 import com.example.promdetal_backend.entity.EquipmentCase;
+import com.example.promdetal_backend.entity.EquipmentGroup;
+import com.example.promdetal_backend.mapper.EquipmentCaseMapper;
 import com.example.promdetal_backend.repository.EquipmentCaseRepository;
+import com.example.promdetal_backend.repository.EquipmentGroupRepository;
 import com.example.promdetal_backend.repository.EquipmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,43 +19,63 @@ import java.util.List;
 public class EquipmentCaseService {
 
     private final EquipmentCaseRepository caseRepository;
-    private final EquipmentRepository equipmentRepository;
+    private final EquipmentGroupRepository groupRepository;
 
-    public List<EquipmentCase> getByEquipment(Long equipmentId) {
-        return caseRepository.findByEquipmentId(equipmentId);
+    // Получение всех кейсов
+    public List<EquipmentCaseResponseDto> getAllCases() {
+        return caseRepository.findAll()
+                .stream()
+                .map(EquipmentCaseMapper::toDto) // ✅ здесь подключаем Mapper
+                .toList();
     }
 
-    public List<EquipmentCase> getAll() {
-        return caseRepository.findAll();
+    // Получение кейсов по группе
+    public List<EquipmentCaseResponseDto> getByGroup(Long groupId) {
+        return caseRepository.findByGroupId(groupId)
+                .stream()
+                .map(EquipmentCaseMapper::toDto)
+                .toList();
     }
 
-    public EquipmentCase get(Long id) {
-        return caseRepository.findById(id)
+    // Получение одного кейса
+    public EquipmentCaseResponseDto getCase(Long id) {
+        EquipmentCase entity = caseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Case not found"));
+        return EquipmentCaseMapper.toDto(entity);
     }
 
-    public EquipmentCase create(Long equipmentId, EquipmentCase c) {
-        Equipment equipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new RuntimeException("Equipment not found"));
+    // Создание кейса через DTO
+    public EquipmentCaseResponseDto createCase(Long groupId, EquipmentCaseRequestDto dto) {
+        EquipmentGroup group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
 
-        c.setEquipment(equipment);
-        return caseRepository.save(c);
+        EquipmentCase entity = new EquipmentCase();
+        EquipmentCaseMapper.updateEntity(entity, dto, group); // ✅ передаём группу прямо в маппер
+
+        EquipmentCase saved = caseRepository.save(entity);
+        return EquipmentCaseMapper.toDto(saved);
     }
 
-    public EquipmentCase update(Long id, EquipmentCase updated) {
-        EquipmentCase existing = get(id);
-        existing.setCustomer(updated.getCustomer());
-        existing.setDeliveryDate(updated.getDeliveryDate());
-        existing.setEquipmentType(updated.getEquipmentType());
-        existing.setPurpose1(updated.getPurpose1());
-        existing.setPurpose2(updated.getPurpose2());
-        existing.setPurpose3(updated.getPurpose3());
-        existing.setImage(updated.getImage());
 
-        return caseRepository.save(existing);
+    // Обновление кейса через DTO
+    public EquipmentCaseResponseDto updateCase(Long id, EquipmentCaseRequestDto dto) {
+        EquipmentCase existing = caseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Case not found"));
+
+        // Подгружаем группу из dto.getGroupId()
+        EquipmentGroup group = null;
+        if (dto.getGroupId() != null) {
+            group = groupRepository.findById(dto.getGroupId())
+                    .orElseThrow(() -> new RuntimeException("Group not found"));
+        }
+
+        EquipmentCaseMapper.updateEntity(existing, dto, group);
+        EquipmentCase saved = caseRepository.save(existing);
+        return EquipmentCaseMapper.toDto(saved);
     }
 
-    public void delete(Long id) {
+
+    public void deleteCase(Long id) {
         caseRepository.deleteById(id);
     }
 }
