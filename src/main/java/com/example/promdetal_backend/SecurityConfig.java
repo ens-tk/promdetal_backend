@@ -86,7 +86,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:8081",
                 "http://172.29.0.1:8081/",
-                "http://62.76.142.36"
+                "http://157.22.174.170"
         ));
 
         config.setAllowedMethods(List.of(
