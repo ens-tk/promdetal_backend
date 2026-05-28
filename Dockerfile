@@ -11,10 +11,13 @@ RUN ./mvnw package -DskipTests -q
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring
+RUN addgroup -S spring && adduser -S spring -G spring && \
+    mkdir -p /app/uploads && \
+    chown -R spring:spring /app/uploads
 
 COPY --from=build /app/target/*.jar app.jar
+
+USER spring
 
 VOLUME /app/uploads
 
