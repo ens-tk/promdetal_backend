@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/groups/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/equipment/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/services/**").permitAll()
                         // ---------- PUBLIC ----------
 
                         .requestMatchers("/api/auth/**").permitAll()
@@ -85,7 +86,6 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:8081",
-                "http://172.29.0.1:8081/",
                 "http://157.22.174.170"
         ));
 
