@@ -86,7 +86,9 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:8081",
-                "http://157.22.174.170"
+                "http://157.22.174.170",
+                "https://enspg.ru",
+                "https://www.enspg.ru"
         ));
 
         config.setAllowedMethods(List.of(
